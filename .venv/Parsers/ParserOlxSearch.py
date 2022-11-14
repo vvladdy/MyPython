@@ -1,9 +1,15 @@
 import time
 from queue import Queue
-
 import requests
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from fake_useragent import FakeUserAgent
+import MyInfo
+import pickle
+import re
 
 class ParserOlx():
 
@@ -14,13 +20,78 @@ class ParserOlx():
     TIMEOUT = 10
     pools = 2
 
-    def __init__(self, searchprod, region):
-        self.url = f"https://www.olx.ua/d/{region}/q-" + str('-'.join(
-            searchprod.split(' ')))
+    def __init__(self, region, searchprod=None, categor=None):
+        if searchprod == None:
+            self.url = f'https://www.olx.ua/d/{categor}/{region}'
+            # self.url = f'https://www.olx.ua/d/detskiy-mir/{region}'
+        else:
+            self.url = f"https://www.olx.ua/d/{region}/q-" + str('-'.join(
+                searchprod.split(' ')))
         self.region = region
         self.queue_links = Queue()
         self.queue_single = Queue()
         self.worker = 1
+
+    def _authorization(self, user_id_for_req):
+        print('START AUTORIZATION')
+        url = 'https://www.olx.ua/account/'
+        fake = FakeUserAgent()
+        user_ag = fake.random
+        print(user_ag)
+
+        headers = {
+            "user-agent": f'{user_ag}'
+            #"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            #"AppleWebKit/537.36 (KHTML, like Gecko)
+            # Chrome/106.0.0.0 Safari/537.36"
+        }
+
+        login = MyInfo.LOGIN_olx
+        pasword = MyInfo.PASSWORD_olx
+
+        datas = {
+            'login[email_phone]': login,
+            'login[password]': pasword
+        }
+        session = requests.Session()
+        authorisation = session.post(url, headers=headers, data=datas)
+        print(authorisation.status_code)
+        pickle.dump(session.cookies,
+                    open('olx_auth.cookies', 'wb'))
+
+        cokies_dict = [
+            {
+                'domain': key.domain,
+                'name': key.name,
+                'path': key.path,
+                'value': key.value
+            }
+            for key in session.cookies
+        ]
+
+        session2 = requests.Session()
+        for cookies in cokies_dict:
+            session2.cookies.set(**cookies)
+
+        Bearer = self.token_new
+        headers = {
+            'Authorization': f'Bearer {Bearer}'
+        }
+        time.sleep(1)
+
+        responce_tel = requests.get(f'https://www.olx.ua/api/v1/offers'
+                                    f'/{user_id_for_req}/limited-phones/',
+                                    headers=headers)
+        time.sleep(1)
+
+        tel_numb = responce_tel.json()
+        try:
+            phone_numb = tel_numb['data']['phones'][0]
+            return phone_numb
+        except Exception as er:
+            phone_numb = None
+            print('NO Phone-Number', er)
+            return phone_numb
 
     def find_links(self):
         urls = self.pagination()
@@ -41,14 +112,6 @@ class ParserOlx():
                         link = 'https://www.olx.ua' + soup.select('.css-rc5s2u')[
                             i].get('href')
                         self.queue_single.put(link)
-                        # try:
-                        #     price = soup.select('.css-1q7gvpp-Text')[i].text
-                        # except Exception as error:
-                        #     print('Цена не определена', error)
-                        # print(title)
-                        # print(link)
-
-                        # print(price)
 
     def pagination(self):
         url = self.url
@@ -67,49 +130,113 @@ class ParserOlx():
         return self.queue_links
 
     def parsing(self):
+        print(self.url)
         urls = self.queue_single
         while urls.qsize() > 0:
             url = urls.get()
             # print(url, urls.qsize())
             with ThreadPoolExecutor(max_workers=self.worker) as tread:
-                tread.submit(self._pars, url)
+                for i in range(self.worker):
+                    tread.submit(self._pars, url)
 
     def _pars(self, url):
-        time.sleep(2)
+        # time.sleep(2)
         print(f'WORKING ON {url}. Remain {self.queue_single.qsize()} links')
-        time.sleep(2)
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+
+        driver_service = Service(
+            executable_path='c:/Users/User/PycharmProjects/chromedriver.exe'
+        )
+
+        driver = webdriver.Chrome(options=options, service=driver_service,
+            executable_path='c:/Users/User/PycharmProjects/chromedriver.exe')
+
+        token_new_variant = []
+        driver.implicitly_wait(1)
+        try:
+            driver.get(url)
+            print(driver.title)
+            cookies_str = driver.get_cookies()
+            for i in range(5):
+                token_new_variant.append(cookies_str[i]['value'])
+        except Exception as erro:
+            print(erro)
+        finally:
+            driver.close()
+            driver.quit()
+
+        for i in token_new_variant:
+            regex_all_new = re.search(r'[a-z0-9]{40}', str(i))
+            if regex_all_new:
+                self.token_new = regex_all_new.group(0)
+
+        Bearer = self.token_new
+        headers = {
+            'Authorization': f'Bearer {Bearer}'
+        }
+
+        resp = requests.get(url)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        try:
+            user_id = soup.select('.css-ogllc8 a')[0].get('href')
+            user = re.search(r'\d{3,}', str(user_id))
+            user_id_for_req = user[0]
+            # print(user_id)
+            print('USER', user[0])
+        except Exception as error:
+            user_id_for_req = self._other_request_id(url)
+            time.sleep(2)
+            print('No ID', error)
+        time.sleep(3)
+        responce = requests.get(
+            f'https://www.olx.ua/api/v1/targeting/data/?page=ad'
+            f'&params%5Bad_id%5D={user_id_for_req}',
+            headers=headers)
+
+        # time.sleep(3)
+        responce_tel = requests.get(f'https://www.olx.ua/api/v1/offers'
+                                    f'/{user_id_for_req}/limited-phones/',
+                                    headers=headers)
+        # time.sleep(5)
+        json_info = responce.json()
+        tel_numb = responce_tel.json()
+        ad_id = json_info['data']['targeting']['ad_id']
+
+        ad_title = json_info['data']['targeting']['ad_title']
+        try:
+            ad_price = json_info['data']['targeting']['ad_price']
+            ad_currency = json_info['data']['targeting']['currency']
+        except Exception as err:
+            ad_price = None
+            ad_currency = None
+            print('NO PRICE', err)
+        try:
+            phone_numb = tel_numb['data']['phones'][0]
+        except Exception as er:
+            phone_numb = self._authorization(user_id_for_req)
+            # phone_numb = None
+            print('NO Phone-Number', er)
+
+        city = json_info['data']['targeting']['city']
+
+        # pprint(json_info)
+        print(str(ad_title).title(), ad_price, ad_currency)
+        print(ad_id, phone_numb, city)
+
+    def _other_request_id(self, url):
         with requests.Session() as session:
             response = session.get(url,
                                    timeout=self.TIMEOUT)
             if response.status_code == 200:
                 print(response.status_code)
                 soup = BeautifulSoup(response.content, 'html.parser')
-                try:
-                    title = soup.select('.css-r9zjja-Text')[0].text
-                    print(title)
-                    price = soup.select('.css-okktvh-Text')[0].text
-                    print(price)
-                except Exception as error:
-                    price = 'Договорная'
-                    print('ОШИБКА', error)
-                    price = 'Договорная'
-                description = soup.select('.css-g5mtbi-Text')[0].text.split('\n')[
-                            0].strip()
-                print(description)
+                time.sleep(1)
                 user_id = soup.select('.css-sddt1v-Text')[0].text.replace(
                     'ID:', '').strip()
                 print(user_id)
-
-                url_api = f'https://www.olx.ua/api/v1/offers' \
-                       f'/{user_id}/limited-phones/'
-
-                print(url_api)
-                headers = {
-                    'Authorization': 'Bearer d7ef6400520b639c2faf02a3d6a15003240eb351'}
-                time.sleep(5)
-                phone_number = requests.get(url_api, headers=headers)
-                print(phone_number.json()['data']['phones'][0])
-                time.sleep(3)
+                return user_id
 
     def main(self):
         self.pagination()
@@ -117,11 +244,7 @@ class ParserOlx():
         self.parsing()
 
 
-# задаем что ищем (часы apple) и где (область)
-cat = ParserOlx('часы apple', 'ko')
+# categor плохо работает, так есть подкатегории
+# задаем: область, категорию categor и\или что ищем searchprod(часы apple)
+cat = ParserOlx( 'ko', searchprod='prodazha-biznesa')
 cat.main()
-# 'ko' - Киевская область. Все расширения в файле end_reg_olx.json
-
-# для телефона
-# 'https://www.olx.ua/api/v1/offers/770485169/limited-phones/'
-# Autorization -  Bearer Token 84c0b04ccac52283bd66332dfc01fba1b18d2c9c
