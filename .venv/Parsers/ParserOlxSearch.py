@@ -34,52 +34,56 @@ class ParserOlx():
 
     def _authorization(self, user_id_for_req):
         print('START AUTORIZATION')
-        url = 'https://www.olx.ua/account/'
-        fake = FakeUserAgent()
-        user_ag = fake.random
-        print(user_ag)
-
-        headers = {
-            "user-agent": f'{user_ag}'
-            #"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            #"AppleWebKit/537.36 (KHTML, like Gecko)
-            # Chrome/106.0.0.0 Safari/537.36"
-        }
-
-        login = MyInfo.LOGIN_olx
-        pasword = MyInfo.PASSWORD_olx
-
-        datas = {
-            'login[email_phone]': login,
-            'login[password]': pasword
-        }
-        session = requests.Session()
-        authorisation = session.post(url, headers=headers, data=datas)
-        print(authorisation.status_code)
-        pickle.dump(session.cookies,
-                    open('olx_auth.cookies', 'wb'))
-
-        cokies_dict = [
-            {
-                'domain': key.domain,
-                'name': key.name,
-                'path': key.path,
-                'value': key.value
-            }
-            for key in session.cookies
-        ]
-
+        # url = 'https://www.olx.ua/account/'
+        # fake = FakeUserAgent()
+        # user_ag = fake.random
+        # print(user_ag)
+        #
+        # headers = {
+        #     "user-agent": f'{user_ag}'
+        #     #"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        #     #"AppleWebKit/537.36 (KHTML, like Gecko)
+        #     # Chrome/106.0.0.0 Safari/537.36"
+        # }
+        #
+        # login = MyInfo.LOGIN_olx
+        # pasword = MyInfo.PASSWORD_olx
+        #
+        # datas = {
+        #     'login[email_phone]': login,
+        #     'login[password]': pasword
+        # }
+        # session = requests.Session()
+        # authorisation = session.post(url, headers=headers, data=datas)
+        # print(authorisation.status_code)
+        #
+        #
+        # pickle.dump(session.cookies,
+        #             open('olx_auth.cookies', 'wb'))
+        #
+        #
+        # cokies_dict = [
+        #     {
+        #         'domain': key.domain,
+        #         'name': key.name,
+        #         'path': key.path,
+        #         'value': key.value
+        #     }
+        #     for key in session.cookies
+        # ]
+        #
         session2 = requests.Session()
-        for cookies in cokies_dict:
-            session2.cookies.set(**cookies)
+        # for cookies in cokies_dict:
+        #     session2.cookies.set(**cookies)
 
-        Bearer = self.token_new
+        # токен авторизации выдается раз в сутки
+        Bearer = '9108cad153c019682289924dd23918db45bde654'
         headers = {
             'Authorization': f'Bearer {Bearer}'
         }
         time.sleep(1)
 
-        responce_tel = requests.get(f'https://www.olx.ua/api/v1/offers'
+        responce_tel = session2.get(f'https://www.olx.ua/api/v1/offers'
                                     f'/{user_id_for_req}/limited-phones/',
                                     headers=headers)
         time.sleep(1)
@@ -173,9 +177,14 @@ class ParserOlx():
                 self.token_new = regex_all_new.group(0)
 
         Bearer = self.token_new
+        print(Bearer)
         headers = {
             'Authorization': f'Bearer {Bearer}'
         }
+
+        #be9ba423c8272d23a267fd7f42169b99d0a31c6e
+        #fbeedfd2fbc7d8742a099bc0918f7441d3fb5d7c
+        #038269f4b8ac242df528cd989cec5848e48dc9e2
 
         resp = requests.get(url)
         soup = BeautifulSoup(resp.text, 'html.parser')
@@ -189,6 +198,11 @@ class ParserOlx():
             user_id_for_req = self._other_request_id(url)
             time.sleep(2)
             print('No ID', error)
+        try:
+            user_name = soup.select('.css-1fp4ipz h4')[0].text.strip()
+        except Exception as error:
+            user_name = 'Unknown'
+            print('UnnameUser', error)
         time.sleep(3)
         responce = requests.get(
             f'https://www.olx.ua/api/v1/targeting/data/?page=ad'
@@ -220,10 +234,9 @@ class ParserOlx():
             print('NO Phone-Number', er)
 
         city = json_info['data']['targeting']['city']
-
         # pprint(json_info)
         print(str(ad_title).title(), ad_price, ad_currency)
-        print(ad_id, phone_numb, city)
+        print(ad_id, user_name, phone_numb, city)
 
     def _other_request_id(self, url):
         with requests.Session() as session:
@@ -246,5 +259,5 @@ class ParserOlx():
 
 # categor плохо работает, так есть подкатегории
 # задаем: область, категорию categor и\или что ищем searchprod(часы apple)
-cat = ParserOlx( 'ko', searchprod='prodazha-biznesa')
+cat = ParserOlx( 'ko', searchprod='детская обувь')
 cat.main()

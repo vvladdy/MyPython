@@ -13,7 +13,7 @@ from selenium.webdriver.chrome.options import Options
 
 #url = 'https://www.olx.ua/d/obyavlenie/shnekoviy-pogruzchik-133-159
 # -transportergvintoviy-konver-shnek-zerna-IDMfJdo.html'
-url = 'https://www.olx.ua/d/obyavlenie/besplatnoe-zhile-pitanie-i-zarplata-IDPGoun.html'
+url = 'https://www.olx.ua/d/obyavlenie/razgovornyy-biznes-delovoy-angliyskiy-uchitel-uroki-angliyskogo-IDHw1Zs.html'
 fake = FakeUserAgent()
 
 user_agent = fake.random
@@ -70,6 +70,8 @@ with open('cookies_new.txt', 'rb') as file:
     #'20f0c4cdb34d5c73fe44d10a58d4ac2835f76f2a'
     # '20973d53de6c85517b19cc636f0e9e942385481e'
 
+    #8f20050bc4d7e277e37837e6a217a7020676b27b
+
 Bearer = token_new
 # Bearer = token_new_variant[1]
 headers = {
@@ -98,8 +100,14 @@ json_info = responce.json()
 tel_numb = responce_tel.json()
 ad_id = json_info['data']['targeting']['ad_id']
 ad_title = json_info['data']['targeting']['ad_title']
-ad_price = json_info['data']['targeting']['ad_price']
-ad_currency = json_info['data']['targeting']['currency']
+try:
+    ad_price = json_info['data']['targeting']['ad_price']
+    ad_currency = json_info['data']['targeting']['currency']
+except Exception as err:
+    ad_price = None
+    ad_currency = None
+    print('NO PRICE', err)
+
 phone_numb = tel_numb['data']['phones'][0]
 city = json_info['data']['targeting']['city']
 
