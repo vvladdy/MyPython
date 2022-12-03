@@ -1,0 +1,66 @@
+.masthead {
+    #main: 74px;
+}
+
+@media (min-width: 992px) {
+    #main {
+        padding-top: calc(4rem + 104px);
+    }
+}
+
+@font-face {
+    font-family: "Hackerweb Font";
+    src:
+    url("fonts/edo-webfont.woff") format('woff'),
+    url("fonts/edo.otf") format("opentype");
+}
+
+.navbar-brand{
+    font-family: 'Hackerweb Font';
+}
+
+.hs-bg-primary{
+    background-color: #ff6842;
+}
+
+#mainNav .navbar-nav li.nav-item a.nav-link{
+    border-bottom: 2px solid transparent;
+    transition: border-bottom .2s, color .2s;
+}
+
+#mainNav .navbar-nav li.nav-item a.nav-link:hover {
+    color: #ff6842;
+    border-color: #ff6842;
+}
+
+#mainNav .navbar-nav li.nav-item a.nav-link.active {
+    background: none;
+    color: #3dd5f3;
+    border-color: #ff6842;
+}
+
+#mainNav .navbar-nav li.nav-item a.nav-link.active:hover {
+    background: #9c27b0;
+    color: #ff6842;
+}
+
+.masthead-heading {
+    color: #76ff03;
+
+}
+
+.masthead .masthead-avatar{
+    width: 170px;
+}
+
+@media (min-width: 992px) {
+    .masthead{
+        padding-top: 10rem;
+    }
+}
+
+.masthead{
+    background-image: url("../img/turziya_vesna_8_napravlenii_9.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}

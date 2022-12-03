@@ -1,0 +1,69 @@
+{% url 'public:index' as index_url %}
+{% url 'public:about' as about_url %}
+{% url 'contact:contact' as contact_url %}
+{% url 'accaunts:profile' as profile_url %}
+{% url 'accaunts:login' as login_url %}
+{% url 'accaunts:logout' as logout_url %}
+
+
+
+<nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="{{ index_url }}">Hacker Website</a>
+        <button class="navbar-toggler text-uppercase font-weight-bold hs-bg-primary text-white rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            Menu
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto">
+<!--                {% url 'public:index' as index_url %}-->
+                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger {% if request.path == index_url %}active{% endif %}" href="{{ index_url }}">HOME</a></li>
+<!--                {% url 'public:about' as about_url %}-->
+                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger{% if request.path == about_url %}active{% endif %}" href="{{ about_url }}">ABOUT</a></li>
+<!--                {% url 'contact:contact' as contact_url %}-->
+                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger{% if request.path == contact_url %}active{% endif %}" href="{{ contact_url }}">CONTACT</a></li>
+<!--                if-->
+                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger{% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">PROFILE</a></li>
+
+<!--                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger{% if request.path == login_url %}active{% endif %}" href="{{ login_url }}">Login</a></li>-->
+<!--&lt;!&ndash;                else&ndash;&gt;-->
+<!--                <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger{% if request.path == logout_url %}active{% endif %}" href="{{ logout_url }}">Logout</a></li>-->
+<!--                endif-->
+            </ul>
+         <span style="float: right">
+             {% url 'accaunts:profile' as profile_url %}
+             {% if user.is_authenticated %}
+             {% url 'accaunts:profile' as profile_url %}
+             <span>Hi {% if request.path == profile_url %}{{user.username}}{% else %}<a href="{{ profile_url }}">{{user.username}}</a>{% endif %}!</span>
+<!--            <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="{% url 'accaunts:logout' %}">Logout</a></li>-->
+             <span><a href="{% url 'accaunts:logout' %}">Logout</a></span>
+        {% else %}
+<!--            <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger " href="{{ profile_url }}">Login</a></li>-->
+
+          <span><a href="{% url 'accaunts:login' %}">Login</a></span>
+        {% endif %}
+        </span>
+
+        </div>
+    </div>
+</nav>
+
+
+
+<!--<div>-->
+<!--  {% url 'public:index' as index_url %}-->
+<!--  <span>{% if request.path == index_url %}HOME{% else %}<a href="{% url 'public:index' %}">Home</a>{% endif %}</span>-->
+<!--  {% url 'public:about' as about_url %}-->
+<!--  <span>{% if request.path == about_url %}ABOUT{% else %}<a href="{% url 'public:about' %}">About</a>{% endif %}</span>-->
+<!--  {% url 'contact:contact' as contact_url %}-->
+<!--  <span>{% if request.path == contact_url %}CONTACT{% else %}<a href="{% url 'contact:contact' %}">Contact</a>{% endif %}</span>-->
+<!--  <span style="float: right">-->
+<!--    {% if user.is_authenticated %}-->
+<!--      {% url 'accaunts:profile' as profile_url %}-->
+<!--      <span>Hi {% if request.path == profile_url %}{{user.username}}{% else %}<a href="{{ profile_url }}">{{user.username}}</a>{% endif %}!</span>-->
+<!--      <span><a href="{% url 'accaunts:logout' %}">Logout</a></span>-->
+<!--    {% else %}-->
+<!--      <span><a href="{% url 'accaunts:login' %}">Login</a></span>-->
+<!--    {% endif %}-->
+<!--  </span>-->
+<!--</div>-->
