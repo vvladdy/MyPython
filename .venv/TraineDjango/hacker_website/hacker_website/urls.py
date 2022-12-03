@@ -35,7 +35,6 @@ urlpatterns = [
 ]
 
 
-
 # # Django AUTH
 # path(
 #     'accounts/login',
