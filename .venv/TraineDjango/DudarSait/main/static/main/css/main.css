@@ -1,0 +1,76 @@
+body {
+    background: #3dd5f3;
+}
+
+aside {
+    float: left;
+    background: #9c27b0;
+    width: 25%;
+    padding: 2.5%;
+    height: 100vh;
+    color: #1a1e21;
+    border-right: 5px solid #0d47a1;
+}
+
+aside img{
+    width: 25px;
+    float: left;
+}
+
+aside .logofoto{
+    width: 80px;
+    float: left;
+}
+
+aside .logo {
+    font-size: 30px;
+    margin-left: 10px;
+    font-weight: bold;
+    position: relative;
+    top: -8px;
+}
+
+aside h3 {
+    margin-top: 20px;
+    font-size: 30px;
+}
+
+/*aside ul {list-style: none} если добавить, то убирутся кружочки*/
+
+aside ul li{
+    color: #1a1e21;
+    margin-top: 10px;
+    transition: transform .6ms ease;
+}
+
+aside ul li:hover, aside ul a:hover {
+    color: #6a1a21;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+main .features {
+    float: left;
+    color: #6a1a21;
+    margin-top: 30px;
+    text-align: center;
+    width: 75%;
+}
+
+main .features h1 {font-size: 50px;}
+main .features p {max-width: 600px; margin: 20px auto}
+
+.alert-warning {
+    float: left;
+    clear: both;
+    width: 600px;
+    margin: 20px 34%;
+    text-align: left;
+
+}
+
+form {
+    margin-left: 28%;
+    width: 500px;
+    margin-top: 50px;
+}

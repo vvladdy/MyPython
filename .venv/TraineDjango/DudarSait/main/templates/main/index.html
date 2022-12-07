@@ -1,0 +1,30 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+{% block content %}
+    <div class="features">
+        <h1>{{ title }}</h1>
+        {% filter upper %}
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        {% endfilter %}
+        <button class="btn btn-warning">На страницу про нас</button>
+
+
+<!--        {% for el in values %}-->
+<!--            {% if el == 'button' %}-->
+<!--                <p>{{ el|upper }}</p>-->
+<!--                </br>-->
+<!--            {% endif %}-->
+<!--        {% endfor %}-->
+
+<!--        {{ obj.age }}-->
+
+<!--        {% for el in obj.values %}-->
+<!--        <p>{{ el }}</p>-->
+<!--        </br>-->
+<!--        {% endfor %}-->
+
+    </div>
+{% endblock %}

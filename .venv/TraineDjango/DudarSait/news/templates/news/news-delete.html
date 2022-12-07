@@ -1,0 +1,21 @@
+
+{% extends 'main/index.html' %}
+
+{% block title %}
+  Удаление статьи
+{% endblock %}
+{% block content %}
+<div class="features" xmlns="http://www.w3.org/1999/html"
+     xmlns="http://www.w3.org/1999/html">
+        <h1>Удаление статьи из сайта</h1>
+        <!-- Coздание формы для добавление новости -->
+        <form method="post">
+        <!-- Ни одна форма не будет работать без csrf_token -->
+            {% csrf_token %}
+
+            {{ article.title }}<br><br>
+          <button class="btn btn-success" type="submit">Удалить новость</button>
+        </form>
+
+    </div>
+{% endblock %}
