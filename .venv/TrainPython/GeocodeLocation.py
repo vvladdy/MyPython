@@ -19,9 +19,12 @@ area.save(fr'D:\MyPythonFolder\MyPython\.venv\Dif_files\Locat\{place}.html')
 
 # Нахождение места по координатам
 coordinates = '48.74 37.55'
+coord_foto = '48.4031 37.334698'
 
 loc = nominatin.geocode(coordinates)
+loc_foto = nominatin.geocode(coord_foto)
 print(loc)
+print(loc_foto)
 
 
 place1 = 'Краматорск'
