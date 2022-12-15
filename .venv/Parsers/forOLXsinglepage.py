@@ -5,10 +5,12 @@ import requests
 from bs4 import BeautifulSoup
 import openpyxl
 
+# pip install xlrd библиотека для работы с excel
+
 info = []
 translator = Translator()
 
-searchtext = 'iphone 11 pro'
+searchtext = 'KOVAR'
 
 # request = 'газовая-горелка-туристическая'
 request = searchtext.replace(' ', '-')

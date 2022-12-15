@@ -1,3 +1,4 @@
+import sys
 import time
 from queue import Queue
 import requests
@@ -101,7 +102,7 @@ class ParserOlx():
         urls = self.pagination()
         while urls.qsize() > 0:
             url = urls.get()
-            # print(url, urls.qsize())
+            print('METOD find_links...', url, urls.qsize())
             with requests.Session() as session:
                 response = session.get(url,
                                        timeout=self.TIMEOUT)
@@ -109,12 +110,13 @@ class ParserOlx():
                     print(response.status_code)
                     soup = BeautifulSoup(response.content, 'html.parser')
                     for i in range(len(soup.select('.css-rc5s2u'))):
-                        try:
-                            title = soup.select('.css-1pvd0aj-Text')[i].text
-                        except Exception:
-                            continue
+                        # try:
+                        #     title = soup.select('..css-ervak4-TextStyled')[i].text
+                        # except Exception:
+                        #     continue
                         link = 'https://www.olx.ua' + soup.select('.css-rc5s2u')[
                             i].get('href')
+                        print('LINK metod find_links', link)
                         self.queue_single.put(link)
 
     def pagination(self):
@@ -126,24 +128,27 @@ class ParserOlx():
         soup = BeautifulSoup(response.content, 'html.parser')
         pages = int(soup.select('.css-1mi714g')[-1].text.strip())
         print('Страниц', pages)
-        pages = 2
+        pages = 3
         for i in range(1, pages+1):
             urls = self.url + f'/?page={i}'
-            # print(urls)
+            print(urls)
             self.queue_links.put(urls)
+        print('страниц в очереди: ', self.queue_links.qsize())
         return self.queue_links
 
     def parsing(self):
-        print(self.url)
+        print('METOD parsing...', self.url)
         urls = self.queue_single
+        print(urls.qsize())
         while urls.qsize() > 0:
             url = urls.get()
-            # print(url, urls.qsize())
+            print(url, urls.qsize())
             with ThreadPoolExecutor(max_workers=self.worker) as tread:
                 for i in range(self.worker):
                     tread.submit(self._pars, url)
 
     def _pars(self, url):
+
         # time.sleep(2)
         print(f'WORKING ON {url}. Remain {self.queue_single.qsize()} links')
 
@@ -238,6 +243,8 @@ class ParserOlx():
         print(str(ad_title).title(), ad_price, ad_currency)
         print(ad_id, user_name, phone_numb, city)
 
+
+
     def _other_request_id(self, url):
         with requests.Session() as session:
             response = session.get(url,
@@ -259,5 +266,6 @@ class ParserOlx():
 
 # categor плохо работает, так есть подкатегории
 # задаем: область, категорию categor и\или что ищем searchprod(часы apple)
-cat = ParserOlx( 'ko', searchprod='детская обувь')
+cat = ParserOlx( 'ko', searchprod='газовая горелка туристическая')
 cat.main()
+
