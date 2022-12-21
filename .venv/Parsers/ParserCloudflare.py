@@ -62,6 +62,7 @@ def find_script(file_path):
     # for i, g in enumerate(scripts):
     #     print(i, g)
     print(scripts[12])
+
     token = re.findall(r'(?<="searchToken":)"[A-Z0-9a-z]+"', str(scripts[12]))
     name = re.findall(r'(?<="categoryID":)"[A-Z0-9a-z]+"', str(scripts[12]))
     print(token, name)
